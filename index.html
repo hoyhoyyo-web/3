@@ -440,13 +440,26 @@ function saveRec(r){const a=loadRecs();a.push(r);localStorage.setItem(LS_KEY,JSO
 
 window.onload=()=>{
   renderTopics();renderUnits();renderEvalItems();openStep(1);
-  // 저장된 키 불러오기
+
+  // 1순위: URL 파라미터 ?k=... 로 키 자동 로드
+  const urlKey = new URLSearchParams(location.search).get('k');
+  if(urlKey && urlKey.startsWith('sk-')) {
+    localStorage.setItem('talktalk_apikey', urlKey);
+    document.getElementById('apiKey').value = urlKey;
+    document.getElementById('apiKeyInput').value = urlKey;
+    // URL에서 키 숨기기 (주소창에 안 보이게)
+    history.replaceState(null,'', location.pathname);
+    toast('✅ AI 피드백 준비 완료! 말하기 연습을 시작해봐! 🎤');
+    return;
+  }
+
+  // 2순위: localStorage에 저장된 키
   const saved = localStorage.getItem('talktalk_apikey');
   if(saved) {
     document.getElementById('apiKey').value = saved;
     document.getElementById('apiKeyInput').value = saved;
   } else {
-    // 키 미설정 시 교사 설정 모달 자동 표시
+    // 키 없으면 교사 설정 모달
     document.getElementById('apiModal').classList.add('open');
   }
 };
